@@ -1,0 +1,15 @@
+{
+  "name": "claude-comedy",
+  "displayName": "Claude Comedy",
+  "version": "1.0.0",
+  "description": "Injects situational developer humor during idle execution gaps",
+  "author": {
+    "name": "dpk",
+    "email": "hi.dpkay@gmail.com"
+  },
+  "repository": "https://github.com/dpk/claude-comedy",
+  "license": "MIT",
+  "keywords": ["humor", "comedy", "developer", "fun"],
+  "hooks": "./hooks/hooks.json",
+  "skills": "./skills/"
+}
