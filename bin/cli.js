@@ -2,6 +2,7 @@
 
 const { readConfig, writeConfig, CONFIG_PATH, DEFAULTS } = require('../src/config.js');
 const { readState, writeState, STATE_PATH } = require('../src/state.js');
+const { isRegistered, register, unregister } = require('../src/registration.js');
 
 const configPath = process.env.CLAUDE_COMEDY_CONFIG_PATH || CONFIG_PATH;
 const statePath = process.env.CLAUDE_COMEDY_STATE_PATH || STATE_PATH;
@@ -10,6 +11,31 @@ const args = process.argv.slice(2);
 const command = args[0];
 
 switch (command) {
+  case 'setup': {
+    try {
+      const { alreadyRegistered } = register();
+      if (alreadyRegistered) {
+        console.log('\n  \u{1f3ad} Claude Comedy is already registered.\n');
+      } else {
+        console.log('\n  \u{1f3ad} Claude Comedy registered! Restart Claude Code to activate.\n');
+      }
+    } catch (err) {
+      console.error(`\n  Error: could not register plugin (${err.code || err.message}).\n`);
+      process.exit(1);
+    }
+    break;
+  }
+
+  case 'unsetup': {
+    const { removed } = unregister();
+    if (removed) {
+      console.log('\n  \u{1f3ad} Claude Comedy unregistered. No more jokes — for now.\n');
+    } else {
+      console.log('\n  \u{1f3ad} Claude Comedy is not currently registered.\n');
+    }
+    break;
+  }
+
   case 'config': {
     const config = readConfig(configPath);
     const cooldownIdx = args.indexOf('--cooldown');
@@ -65,10 +91,19 @@ switch (command) {
   }
 
   default: {
+    const registered = isRegistered();
+    const statusLine = registered
+      ? '  Status: registered'
+      : '  Status: NOT registered — run "claude-comedy setup" to activate';
+
     console.log(`
   \u{1f3ad} Claude Comedy — Developer humor for Claude Code
 
+${statusLine}
+
   Usage:
+    claude-comedy setup                   Register plugin with Claude Code
+    claude-comedy unsetup                 Unregister plugin
     claude-comedy config                  Show current config
     claude-comedy config --cooldown <N>   Set cooldown to N minutes
     claude-comedy config --enable         Enable comedy

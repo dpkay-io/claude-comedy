@@ -1,41 +1,23 @@
 #!/usr/bin/env node
 
-const fs = require('node:fs');
-const path = require('node:path');
-const os = require('node:os');
-
-const pluginsDir = path.join(os.homedir(), '.claude', 'plugins');
-const linkPath = path.join(pluginsDir, 'claude-comedy');
-const targetPath = path.resolve(__dirname, '..');
+const { register, LINK_PATH, PACKAGE_ROOT } = require('../src/registration.js');
 
 try {
-  fs.mkdirSync(pluginsDir, { recursive: true });
-
-  try {
-    const existing = fs.readlinkSync(linkPath);
-    if (existing === targetPath) {
-      console.log('\n  \u{1f3ad} Claude Comedy is already registered.\n');
-      process.exit(0);
-    }
-    fs.unlinkSync(linkPath);
-  } catch {
-    // link doesn't exist — that's fine
+  const { alreadyRegistered } = register();
+  if (alreadyRegistered) {
+    console.log('\n  \u{1f3ad} Claude Comedy is already registered.\n');
+  } else {
+    console.log('\n  \u{1f3ad} Claude Comedy installed! Jokes will appear in your next Claude Code session.\n');
   }
-
-  fs.symlinkSync(targetPath, linkPath, 'junction');
-  console.log('\n  \u{1f3ad} Claude Comedy installed! Jokes will appear in your next Claude Code session.\n');
 } catch (err) {
   console.log(`
   \u{1f3ad} Claude Comedy — manual setup needed:
 
   Could not create symlink automatically (${err.code || err.message}).
 
-  To register the plugin manually, run:
+  Run this to register the plugin manually:
 
-    ${process.platform === 'win32'
-      ? `mklink /J "${linkPath}" "${targetPath}"`
-      : `ln -s "${targetPath}" "${linkPath}"`
-    }
+    claude-comedy setup
 
   Then restart Claude Code.
 `);

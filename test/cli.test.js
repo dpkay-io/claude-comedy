@@ -25,14 +25,45 @@ describe('cli', () => {
   let statePath;
   let configPath;
 
+  let pluginsDir;
+
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comedy-cli-test-'));
     statePath = path.join(tmpDir, 'state.json');
     configPath = path.join(tmpDir, 'config.json');
+    pluginsDir = path.join(tmpDir, 'plugins');
   });
 
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('setup registers the plugin', () => {
+    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    assert.ok(stdout.includes('registered'));
+  });
+
+  it('setup is idempotent', () => {
+    runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    assert.ok(stdout.includes('already registered'));
+  });
+
+  it('unsetup removes registration', () => {
+    runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    assert.ok(stdout.includes('unregistered'));
+  });
+
+  it('unsetup when not registered shows not registered', () => {
+    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    assert.ok(stdout.includes('not currently registered'));
+  });
+
+  it('default help shows registration status', () => {
+    const { stdout } = runCli([], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    assert.ok(stdout.includes('Status:'));
+    assert.ok(stdout.includes('claude-comedy setup'));
   });
 
   it('config shows defaults when no config file exists', () => {

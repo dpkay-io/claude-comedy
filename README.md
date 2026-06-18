@@ -10,7 +10,11 @@ Claude Comedy is a [Claude Code plugin](https://docs.anthropic.com/en/docs/claud
 npm install -g claude-comedy
 ```
 
-That's it. Jokes start appearing in your next Claude Code session.
+That's it. The plugin registers itself automatically. If auto-registration fails (permissions, non-standard setup), run manually:
+
+```bash
+claude-comedy setup
+```
 
 ## How It Works
 
@@ -22,11 +26,11 @@ The plugin hooks into two Claude Code lifecycle events:
 When triggered, it checks a cooldown timer (default: 5 minutes). If enough time has passed, it classifies the situation (git, testing, deployment, etc.) and injects a prompt that nudges Claude to tell a contextual joke in a fun "mood bubble" format:
 
 ```
-  🦆 The Rubber Duck:
-  ╭───────────────────────────────────────╮
-  │ You just mass-renamed a variable.     │
-  │ Bold move. Let's see if it compiles.  │
-  ╰───────────────────────────────────────╯
+  👻 The Ghost of Deploys Past:
+  ╭──────────────────────────────────────────────╮
+  │ 47 files changed. On a Friday. At 4:59 PM.  │
+  │ I too like to live dangerously.              │
+  ╰──────────────────────────────────────────────╯
 ```
 
 The jokes are situational — git operations get git humor, test runs get testing humor, and when the same category repeats too often, it switches to random topics to keep things fresh.
@@ -36,6 +40,8 @@ The jokes are situational — git operations get git humor, test runs get testin
 ### CLI
 
 ```bash
+claude-comedy setup                   # Register plugin with Claude Code
+claude-comedy unsetup                 # Unregister plugin
 claude-comedy config                  # Show current config
 claude-comedy config --cooldown 10    # Set cooldown to 10 minutes
 claude-comedy config --enable         # Enable
@@ -59,6 +65,8 @@ Then tell Claude what you want: "set cooldown to 10 minutes", "disable comedy", 
 ```bash
 npm uninstall -g claude-comedy
 ```
+
+To unregister without uninstalling: `claude-comedy unsetup`
 
 ## How It's Built
 
