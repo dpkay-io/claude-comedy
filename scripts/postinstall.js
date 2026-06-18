@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { register, LINK_PATH, PACKAGE_ROOT } = require('../src/registration.js');
+const { register } = require('../src/registration.js');
 
 try {
   const { alreadyRegistered } = register();

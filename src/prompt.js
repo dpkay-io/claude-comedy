@@ -27,8 +27,8 @@ function buildPrompt(category, isRepetitive) {
   return COMEDY_TEMPLATE.replace('CATEGORY_LINE', categoryLine);
 }
 
-function buildOutputJson(prompt) {
-  return JSON.stringify({ hookSpecificOutput: { additionalContext: prompt } });
+function buildOutputJson(prompt, hookEventName) {
+  return JSON.stringify({ hookSpecificOutput: { hookEventName, additionalContext: prompt } });
 }
 
 module.exports = { buildPrompt, buildOutputJson };

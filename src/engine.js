@@ -23,8 +23,9 @@ process.stdin.on('end', () => {
     const category = classify(hookInput);
     const repetitive = isRepetitive(state, category);
     const prompt = buildPrompt(category, repetitive);
+    const hookEventName = hookInput.hook_event_name || 'PostToolBatch';
 
-    process.stdout.write(buildOutputJson(prompt));
+    process.stdout.write(buildOutputJson(prompt, hookEventName));
 
     const updatedState = updateState(state, category);
     try {

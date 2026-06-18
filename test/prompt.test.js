@@ -38,9 +38,10 @@ describe('buildPrompt', () => {
 describe('buildOutputJson', () => {
   const { buildOutputJson } = require('../src/prompt.js');
 
-  it('wraps prompt in hookSpecificOutput.additionalContext', () => {
-    const json = buildOutputJson('test prompt');
+  it('wraps prompt in hookSpecificOutput with hookEventName and additionalContext', () => {
+    const json = buildOutputJson('test prompt', 'PostToolBatch');
     const parsed = JSON.parse(json);
+    assert.strictEqual(parsed.hookSpecificOutput.hookEventName, 'PostToolBatch');
     assert.strictEqual(parsed.hookSpecificOutput.additionalContext, 'test prompt');
   });
 });

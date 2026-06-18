@@ -24,14 +24,13 @@ describe('cli', () => {
   let tmpDir;
   let statePath;
   let configPath;
-
-  let pluginsDir;
+  let skillsDir;
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comedy-cli-test-'));
     statePath = path.join(tmpDir, 'state.json');
     configPath = path.join(tmpDir, 'config.json');
-    pluginsDir = path.join(tmpDir, 'plugins');
+    skillsDir = path.join(tmpDir, 'skills');
   });
 
   afterEach(() => {
@@ -39,29 +38,43 @@ describe('cli', () => {
   });
 
   it('setup registers the plugin', () => {
-    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
     assert.ok(stdout.includes('registered'));
   });
 
+  it('setup creates symlink in skills directory', () => {
+    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const linkPath = path.join(skillsDir, 'claude-comedy');
+    const stat = fs.lstatSync(linkPath);
+    assert.ok(stat.isSymbolicLink() || stat.isDirectory());
+  });
+
   it('setup is idempotent', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
-    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
     assert.ok(stdout.includes('already registered'));
   });
 
   it('unsetup removes registration', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
-    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
     assert.ok(stdout.includes('unregistered'));
   });
 
+  it('unsetup removes symlink from skills directory', () => {
+    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const linkPath = path.join(skillsDir, 'claude-comedy');
+    assert.ok(!fs.existsSync(linkPath));
+  });
+
   it('unsetup when not registered shows not registered', () => {
-    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
     assert.ok(stdout.includes('not currently registered'));
   });
 
   it('default help shows registration status', () => {
-    const { stdout } = runCli([], { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir });
+    const { stdout } = runCli([], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
     assert.ok(stdout.includes('Status:'));
     assert.ok(stdout.includes('claude-comedy setup'));
   });
