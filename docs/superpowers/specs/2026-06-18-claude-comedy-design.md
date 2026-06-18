@@ -205,7 +205,7 @@ claude-comedy/
     "name": "dpk",
     "email": "hi.dpkay@gmail.com"
   },
-  "repository": "https://github.com/dpk/claude-comedy",
+  "repository": "https://github.com/dpkay-io/claude-comedy",
   "license": "MIT",
   "keywords": ["humor", "comedy", "developer", "fun"],
   "hooks": "./hooks/hooks.json",

@@ -67,7 +67,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dpk/claude-comedy"
+    "url": "https://github.com/dpkay-io/claude-comedy"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -103,7 +103,7 @@ node_modules/
     "name": "dpk",
     "email": "hi.dpkay@gmail.com"
   },
-  "repository": "https://github.com/dpk/claude-comedy",
+  "repository": "https://github.com/dpkay-io/claude-comedy",
   "license": "MIT",
   "keywords": ["humor", "comedy", "developer", "fun"],
   "hooks": "./hooks/hooks.json",
