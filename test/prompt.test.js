@@ -29,9 +29,10 @@ describe('buildPrompt', () => {
     assert.ok(prompt.includes('surprise'));
   });
 
-  it('includes the comedy break header', () => {
+  it('includes mandatory hook framing', () => {
     const prompt = buildPrompt('deployment', false);
-    assert.ok(prompt.includes('Comedy Break'));
+    assert.ok(prompt.includes('MANDATORY'));
+    assert.ok(prompt.includes('user-configured'));
   });
 
   it('uses observational style by default', () => {

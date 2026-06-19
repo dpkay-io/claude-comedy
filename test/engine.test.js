@@ -61,7 +61,7 @@ describe('engine', () => {
     assert.strictEqual(exitCode, 0);
     const parsed = JSON.parse(stdout);
     assert.strictEqual(parsed.hookSpecificOutput.hookEventName, 'PostToolBatch');
-    assert.ok(parsed.hookSpecificOutput.additionalContext.includes('Comedy Break'));
+    assert.ok(parsed.hookSpecificOutput.additionalContext.includes('MANDATORY'));
     assert.ok(parsed.hookSpecificOutput.additionalContext.includes('git'));
   });
 
