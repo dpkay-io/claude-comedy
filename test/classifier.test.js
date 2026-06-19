@@ -57,15 +57,47 @@ describe('classify', () => {
     assert.strictEqual(classify(input), 'build');
   });
 
-  it('returns "debugging" for Grep tool', () => {
+  it('returns "searching" for Grep tool', () => {
     const input = {
       hook_event_name: 'PostToolBatch',
       tool_calls: [{ tool_name: 'Grep', tool_input: { pattern: 'error' } }],
     };
-    assert.strictEqual(classify(input), 'debugging');
+    assert.strictEqual(classify(input), 'searching');
   });
 
-  it('returns "refactoring" for multiple Edit calls', () => {
+  it('returns "searching" for Glob tool', () => {
+    const input = {
+      hook_event_name: 'PostToolBatch',
+      tool_calls: [{ tool_name: 'Glob', tool_input: { pattern: '**/*.js' } }],
+    };
+    assert.strictEqual(classify(input), 'searching');
+  });
+
+  it('returns "researching" for WebFetch tool', () => {
+    const input = {
+      hook_event_name: 'PostToolBatch',
+      tool_calls: [{ tool_name: 'WebFetch', tool_input: { url: 'https://example.com' } }],
+    };
+    assert.strictEqual(classify(input), 'researching');
+  });
+
+  it('returns "researching" for WebSearch tool', () => {
+    const input = {
+      hook_event_name: 'PostToolBatch',
+      tool_calls: [{ tool_name: 'WebSearch', tool_input: { query: 'node streams' } }],
+    };
+    assert.strictEqual(classify(input), 'researching');
+  });
+
+  it('returns "exploring" for Read tool', () => {
+    const input = {
+      hook_event_name: 'PostToolBatch',
+      tool_calls: [{ tool_name: 'Read', tool_input: { file_path: 'foo.txt' } }],
+    };
+    assert.strictEqual(classify(input), 'exploring');
+  });
+
+  it('returns "refactoring" for multiple Edit calls without Write', () => {
     const input = {
       hook_event_name: 'PostToolBatch',
       tool_calls: [
@@ -76,12 +108,16 @@ describe('classify', () => {
     assert.strictEqual(classify(input), 'refactoring');
   });
 
-  it('returns "general" when nothing matches', () => {
+  it('does not return "refactoring" when Write is present alongside Edits', () => {
     const input = {
       hook_event_name: 'PostToolBatch',
-      tool_calls: [{ tool_name: 'Read', tool_input: { file_path: 'foo.txt' } }],
+      tool_calls: [
+        { tool_name: 'Edit', tool_input: { file_path: 'a.js' } },
+        { tool_name: 'Edit', tool_input: { file_path: 'b.js' } },
+        { tool_name: 'Write', tool_input: { file_path: 'c.js' } },
+      ],
     };
-    assert.strictEqual(classify(input), 'general');
+    assert.notStrictEqual(classify(input), 'refactoring');
   });
 
   it('returns "general" for empty tool_calls', () => {

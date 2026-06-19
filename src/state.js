@@ -2,19 +2,25 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
-const STATE_PATH = path.join(os.tmpdir(), 'claude-comedy-state.json');
+const STATE_PATH = path.join(os.homedir(), '.config', 'claude-comedy', 'state.json');
 
 const STATE_DEFAULTS = Object.freeze({ lastJokeAt: 0, recentCategories: [], jokeCount: 0 });
 
 function readState(filePath = STATE_PATH) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    return {
+      lastJokeAt: raw.lastJokeAt ?? STATE_DEFAULTS.lastJokeAt,
+      recentCategories: raw.recentCategories ?? [],
+      jokeCount: raw.jokeCount ?? STATE_DEFAULTS.jokeCount,
+    };
   } catch {
     return { ...STATE_DEFAULTS, recentCategories: [] };
   }
 }
 
 function writeState(filePath = STATE_PATH, state) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(state));
 }
 

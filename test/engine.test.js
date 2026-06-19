@@ -39,7 +39,7 @@ describe('engine', () => {
   it('exits silently when cooldown has not elapsed', () => {
     const recentState = { lastJokeAt: Date.now(), recentCategories: [], jokeCount: 1 };
     fs.writeFileSync(statePath, JSON.stringify(recentState));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
 
     const { stdout, exitCode } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [] },
@@ -52,7 +52,7 @@ describe('engine', () => {
   it('outputs additionalContext JSON when cooldown has elapsed', () => {
     const oldState = { lastJokeAt: 0, recentCategories: [], jokeCount: 0 };
     fs.writeFileSync(statePath, JSON.stringify(oldState));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
 
     const { stdout, exitCode } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [{ tool_name: 'Bash', tool_input: { command: 'git log' } }] },
@@ -67,7 +67,7 @@ describe('engine', () => {
 
   it('exits silently when disabled', () => {
     fs.writeFileSync(statePath, JSON.stringify({ lastJokeAt: 0, recentCategories: [], jokeCount: 0 }));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: false }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: false, style: 'observational' }));
 
     const { stdout, exitCode } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [] },
@@ -79,7 +79,7 @@ describe('engine', () => {
 
   it('updates state file after delivering a joke', () => {
     fs.writeFileSync(statePath, JSON.stringify({ lastJokeAt: 0, recentCategories: [], jokeCount: 0 }));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
 
     runEngine(
       { hook_event_name: 'SubagentStart' },
@@ -95,7 +95,7 @@ describe('engine', () => {
   it('uses surprise mode when category is repetitive', () => {
     const state = { lastJokeAt: 0, recentCategories: ['git', 'git', 'testing'], jokeCount: 5 };
     fs.writeFileSync(statePath, JSON.stringify(state));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
 
     const { stdout } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [{ tool_name: 'Bash', tool_input: { command: 'git diff' } }] },

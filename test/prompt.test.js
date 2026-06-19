@@ -33,6 +33,32 @@ describe('buildPrompt', () => {
     const prompt = buildPrompt('deployment', false);
     assert.ok(prompt.includes('Comedy Break'));
   });
+
+  it('uses observational style by default', () => {
+    const prompt = buildPrompt('git', false);
+    assert.ok(prompt.includes('Observational humor'));
+  });
+
+  it('uses dry style when specified', () => {
+    const prompt = buildPrompt('git', false, 'dry');
+    assert.ok(prompt.includes('deadpan'));
+    assert.ok(!prompt.includes('Observational'));
+  });
+
+  it('uses dad-jokes style when specified', () => {
+    const prompt = buildPrompt('git', false, 'dad-jokes');
+    assert.ok(prompt.includes('dad jokes'));
+  });
+
+  it('uses absurdist style when specified', () => {
+    const prompt = buildPrompt('git', false, 'absurdist');
+    assert.ok(prompt.includes('surreal'));
+  });
+
+  it('falls back to observational for unknown style', () => {
+    const prompt = buildPrompt('git', false, 'unknown');
+    assert.ok(prompt.includes('Observational humor'));
+  });
 });
 
 describe('buildOutputJson', () => {
@@ -43,5 +69,17 @@ describe('buildOutputJson', () => {
     const parsed = JSON.parse(json);
     assert.strictEqual(parsed.hookSpecificOutput.hookEventName, 'PostToolBatch');
     assert.strictEqual(parsed.hookSpecificOutput.additionalContext, 'test prompt');
+  });
+});
+
+describe('VALID_STYLES', () => {
+  const { VALID_STYLES } = require('../src/prompt.js');
+
+  it('exports the list of valid style names', () => {
+    assert.ok(VALID_STYLES.includes('observational'));
+    assert.ok(VALID_STYLES.includes('dry'));
+    assert.ok(VALID_STYLES.includes('dad-jokes'));
+    assert.ok(VALID_STYLES.includes('absurdist'));
+    assert.strictEqual(VALID_STYLES.length, 4);
   });
 });

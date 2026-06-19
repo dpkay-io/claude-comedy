@@ -6,7 +6,8 @@ const BASH_CATEGORIES = [
   { category: 'build', patterns: [/\btsc\b/, /\bnpm\s+run\s+build\b/, /\bmake\b/, /\bcargo\s+build\b/, /\bgo\s+build\b/, /\bgradle\b/, /\bmvn\b/] },
 ];
 
-const DEBUGGING_TOOLS = new Set(['Grep', 'Glob']);
+const SEARCHING_TOOLS = new Set(['Grep', 'Glob']);
+const RESEARCHING_TOOLS = new Set(['WebFetch', 'WebSearch']);
 
 function classify(input) {
   if (input.hook_event_name === 'SubagentStart') return 'delegation';
@@ -14,8 +15,9 @@ function classify(input) {
   const toolCalls = input.tool_calls || [];
   if (toolCalls.length === 0) return 'general';
 
-  const editWriteCount = toolCalls.filter(t => t.tool_name === 'Edit' || t.tool_name === 'Write').length;
-  if (editWriteCount >= 2) return 'refactoring';
+  const editCount = toolCalls.filter(t => t.tool_name === 'Edit').length;
+  const hasWrite = toolCalls.some(t => t.tool_name === 'Write');
+  if (editCount >= 2 && !hasWrite) return 'refactoring';
 
   for (const call of toolCalls) {
     if (call.tool_name === 'Bash' || call.tool_name === 'PowerShell') {
@@ -25,7 +27,9 @@ function classify(input) {
       }
     }
 
-    if (DEBUGGING_TOOLS.has(call.tool_name)) return 'debugging';
+    if (RESEARCHING_TOOLS.has(call.tool_name)) return 'researching';
+    if (SEARCHING_TOOLS.has(call.tool_name)) return 'searching';
+    if (call.tool_name === 'Read') return 'exploring';
   }
 
   return 'general';

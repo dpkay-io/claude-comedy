@@ -40,15 +40,27 @@ The jokes are situational — git operations get git humor, test runs get testin
 ### CLI
 
 ```bash
-claude-comedy setup                   # Register plugin with Claude Code
-claude-comedy unsetup                 # Unregister plugin
-claude-comedy config                  # Show current config
-claude-comedy config --cooldown 10    # Set cooldown to 10 minutes
-claude-comedy config --enable         # Enable
-claude-comedy config --disable        # Disable (jokes stop immediately)
-claude-comedy stats                   # Show joke count and stats
-claude-comedy reset                   # Reset counter
+claude-comedy setup                       # Register plugin with Claude Code
+claude-comedy unsetup                     # Unregister plugin
+claude-comedy config                      # Show current config
+claude-comedy config --cooldown 10        # Set cooldown to 10 minutes
+claude-comedy config --style dry          # Set humor style
+claude-comedy config --enable             # Enable
+claude-comedy config --disable            # Disable (jokes stop immediately)
+claude-comedy stats                       # Show joke count and stats
+claude-comedy reset                       # Reset counter
 ```
+
+### Humor Styles
+
+Control the tone of jokes with `--style`:
+
+| Style | Vibe |
+|---|---|
+| `observational` | Default. Relatable dev observations, occasional puns. |
+| `dry` | Deadpan delivery. The funnier it is, the less it cares. |
+| `dad-jokes` | Groan-worthy puns and obvious setups. |
+| `absurdist` | Surreal, non-sequitur humor. |
 
 ### In Claude Code
 
@@ -58,7 +70,7 @@ Use the slash command:
 /claude-comedy:config
 ```
 
-Then tell Claude what you want: "set cooldown to 10 minutes", "disable comedy", "show stats".
+Then tell Claude what you want: "set cooldown to 10 minutes", "switch to dad jokes", "show stats".
 
 ## Uninstall
 
@@ -73,7 +85,7 @@ To unregister without uninstalling: `claude-comedy unsetup`
 - **Zero runtime dependencies** — only Node.js built-ins
 - **Ultra-lightweight** — the engine checks cooldown and exits in ~10ms on the fast path
 - **Never blocks Claude** — 5-second timeout ceiling, silent exit on any error
-- **State file** in your OS temp directory — no permanent disk footprint
+- **State file** at `~/.config/claude-comedy/state.json` — persists across reboots
 - **Config file** at `~/.config/claude-comedy/config.json`
 
 ## Situation Categories
@@ -82,9 +94,11 @@ To unregister without uninstalling: `claude-comedy unsetup`
 |---|---|
 | git | `git` commands |
 | testing | `test`, `jest`, `pytest`, `vitest`, etc. |
-| debugging | Grep/Glob tool usage |
+| searching | Grep/Glob tool usage |
+| researching | WebFetch/WebSearch tool usage |
+| exploring | Read tool usage |
 | deployment | `docker`, `kubectl`, `deploy`, etc. |
-| refactoring | Multiple Edit/Write calls in one batch |
+| refactoring | Multiple Edit calls (no new files) in one batch |
 | dependencies | `npm install`, `pip install`, etc. |
 | delegation | Subagent spawned |
 | build | `tsc`, `make`, `cargo build`, etc. |
@@ -95,7 +109,7 @@ To unregister without uninstalling: `claude-comedy unsetup`
 PRs welcome! The codebase is small and focused:
 
 - `src/classifier.js` — add new situation categories
-- `src/prompt.js` — tweak the comedy prompt template
+- `src/prompt.js` — tweak the comedy prompt template and humor styles
 - `src/engine.js` — the orchestrator (cooldown → classify → inject)
 
 Run tests: `npm test`

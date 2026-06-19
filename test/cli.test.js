@@ -154,6 +154,33 @@ describe('cli', () => {
     assert.strictEqual(config.enabled, true);
   });
 
+  it('config --style sets humor style', () => {
+    runCli(['config', '--style', 'dry'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    assert.strictEqual(config.style, 'dry');
+  });
+
+  it('config --style rejects invalid values', () => {
+    const { exitCode, stderr } = runCli(['config', '--style', 'slapstick'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    assert.strictEqual(exitCode, 1);
+    assert.ok(stderr.includes('--style must be one of'));
+  });
+
+  it('config shows style in output', () => {
+    const { stdout } = runCli(['config'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    assert.ok(stdout.includes('style:'));
+    assert.ok(stdout.includes('observational'));
+  });
+
   it('stats shows joke count', () => {
     fs.writeFileSync(statePath, JSON.stringify({ lastJokeAt: 1000, recentCategories: ['git'], jokeCount: 42 }));
     const { stdout } = runCli(['stats'], {

@@ -3,6 +3,7 @@
 const { readConfig, writeConfig, CONFIG_PATH, DEFAULTS } = require('../src/config.js');
 const { readState, writeState, STATE_PATH } = require('../src/state.js');
 const { isRegistered, register, unregister } = require('../src/registration.js');
+const { VALID_STYLES } = require('../src/prompt.js');
 
 const configPath = process.env.CLAUDE_COMEDY_CONFIG_PATH || CONFIG_PATH;
 const statePath = process.env.CLAUDE_COMEDY_STATE_PATH || STATE_PATH;
@@ -39,13 +40,15 @@ switch (command) {
   case 'config': {
     const config = readConfig(configPath);
     const cooldownIdx = args.indexOf('--cooldown');
+    const styleIdx = args.indexOf('--style');
     const hasDisable = args.includes('--disable');
     const hasEnable = args.includes('--enable');
 
-    if (cooldownIdx === -1 && !hasDisable && !hasEnable) {
+    if (cooldownIdx === -1 && styleIdx === -1 && !hasDisable && !hasEnable) {
       console.log('\n  \u{1f3ad} Claude Comedy Config\n');
       console.log(`  cooldown_minutes: ${config.cooldown_minutes}`);
       console.log(`  enabled:          ${config.enabled}`);
+      console.log(`  style:            ${config.style}`);
       console.log(`  config file:      ${configPath}\n`);
       break;
     }
@@ -58,13 +61,22 @@ switch (command) {
       }
       config.cooldown_minutes = value;
     }
+    if (styleIdx !== -1) {
+      const value = args[styleIdx + 1];
+      if (!VALID_STYLES.includes(value)) {
+        console.error(`Error: --style must be one of: ${VALID_STYLES.join(', ')}`);
+        process.exit(1);
+      }
+      config.style = value;
+    }
     if (hasDisable) config.enabled = false;
     if (hasEnable) config.enabled = true;
 
     writeConfig(configPath, config);
     console.log('\n  \u{1f3ad} Config updated!\n');
     console.log(`  cooldown_minutes: ${config.cooldown_minutes}`);
-    console.log(`  enabled:          ${config.enabled}\n`);
+    console.log(`  enabled:          ${config.enabled}`);
+    console.log(`  style:            ${config.style}\n`);
     break;
   }
 
@@ -74,6 +86,7 @@ switch (command) {
     console.log('\n  \u{1f3ad} Claude Comedy Stats\n');
     console.log(`  Jokes delivered:  ${state.jokeCount}`);
     console.log(`  Cooldown:         ${config.cooldown_minutes} minutes`);
+    console.log(`  Style:            ${config.style}`);
     console.log(`  Status:           ${config.enabled ? 'enabled' : 'disabled'}`);
     if (state.lastJokeAt > 0) {
       const ago = Math.round((Date.now() - state.lastJokeAt) / 60000);
@@ -106,6 +119,7 @@ ${statusLine}
     claude-comedy unsetup                 Unregister plugin
     claude-comedy config                  Show current config
     claude-comedy config --cooldown <N>   Set cooldown to N minutes
+    claude-comedy config --style <S>      Set humor style (${VALID_STYLES.join(', ')})
     claude-comedy config --enable         Enable comedy
     claude-comedy config --disable        Disable comedy
     claude-comedy stats                   Show joke stats

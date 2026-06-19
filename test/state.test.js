@@ -39,6 +39,15 @@ describe('readState', () => {
     const state = readState(statePath);
     assert.strictEqual(state.lastJokeAt, 0);
   });
+
+  it('fills in missing keys with defaults', () => {
+    fs.writeFileSync(statePath, JSON.stringify({ lastJokeAt: 5000 }));
+    const { readState } = require('../src/state.js');
+    const state = readState(statePath);
+    assert.strictEqual(state.lastJokeAt, 5000);
+    assert.deepStrictEqual(state.recentCategories, []);
+    assert.strictEqual(state.jokeCount, 0);
+  });
 });
 
 describe('writeState', () => {
@@ -121,5 +130,13 @@ describe('updateState', () => {
     const updated = updateState(state, 'd');
     assert.deepStrictEqual(updated.recentCategories, ['b', 'c', 'd']);
     assert.strictEqual(updated.jokeCount, 6);
+  });
+});
+
+describe('STATE_PATH', () => {
+  it('resolves to ~/.config/claude-comedy/state.json', () => {
+    const { STATE_PATH } = require('../src/state.js');
+    const expected = path.join(os.homedir(), '.config', 'claude-comedy', 'state.json');
+    assert.strictEqual(STATE_PATH, expected);
   });
 });
