@@ -13,7 +13,7 @@ try {
   console.log(`
   \u{1f3ad} Claude Comedy — manual setup needed:
 
-  Could not create symlink automatically (${err.code || err.message}).
+  Could not register automatically (${err.code || err.message}).
 
   Run this to register the plugin manually:
 

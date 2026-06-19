@@ -10,6 +10,7 @@ const CLI_PATH = path.join(__dirname, '..', 'bin', 'cli.js');
 function runCli(args, env = {}) {
   try {
     const result = execFileSync('node', [CLI_PATH, ...args], {
+      input: '',
       encoding: 'utf8',
       env: { ...process.env, ...env },
       timeout: 5000,
@@ -24,13 +25,19 @@ describe('cli', () => {
   let tmpDir;
   let statePath;
   let configPath;
-  let skillsDir;
+  let pluginsDir;
+  let settingsPath;
+
+  function registrationEnv() {
+    return { CLAUDE_COMEDY_PLUGINS_DIR: pluginsDir, CLAUDE_COMEDY_SETTINGS_PATH: settingsPath };
+  }
 
   beforeEach(() => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comedy-cli-test-'));
     statePath = path.join(tmpDir, 'state.json');
     configPath = path.join(tmpDir, 'config.json');
-    skillsDir = path.join(tmpDir, 'skills');
+    pluginsDir = path.join(tmpDir, 'plugins');
+    settingsPath = path.join(tmpDir, 'settings.json');
   });
 
   afterEach(() => {
@@ -38,43 +45,72 @@ describe('cli', () => {
   });
 
   it('setup registers the plugin', () => {
-    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const { stdout } = runCli(['setup'], registrationEnv());
     assert.ok(stdout.includes('registered'));
   });
 
-  it('setup creates symlink in skills directory', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
-    const linkPath = path.join(skillsDir, 'claude-comedy');
-    const stat = fs.lstatSync(linkPath);
-    assert.ok(stat.isSymbolicLink() || stat.isDirectory());
+  it('setup creates entry in installed_plugins.json', () => {
+    runCli(['setup'], registrationEnv());
+    const installed = JSON.parse(fs.readFileSync(path.join(pluginsDir, 'installed_plugins.json'), 'utf8'));
+    assert.ok(installed.plugins['claude-comedy@claude-comedy-local']);
+    assert.strictEqual(installed.plugins['claude-comedy@claude-comedy-local'][0].scope, 'user');
+  });
+
+  it('setup registers marketplace in known_marketplaces.json', () => {
+    runCli(['setup'], registrationEnv());
+    const known = JSON.parse(fs.readFileSync(path.join(pluginsDir, 'known_marketplaces.json'), 'utf8'));
+    assert.ok(known['claude-comedy-local']);
+    assert.strictEqual(known['claude-comedy-local'].source.source, 'directory');
+  });
+
+  it('setup enables in settings.json with marketplace', () => {
+    runCli(['setup'], registrationEnv());
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    assert.strictEqual(settings.enabledPlugins['claude-comedy@claude-comedy-local'], true);
+    assert.ok(settings.extraKnownMarketplaces['claude-comedy-local']);
   });
 
   it('setup is idempotent', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
-    const { stdout } = runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    runCli(['setup'], registrationEnv());
+    const { stdout } = runCli(['setup'], registrationEnv());
     assert.ok(stdout.includes('already registered'));
   });
 
   it('unsetup removes registration', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
-    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    runCli(['setup'], registrationEnv());
+    const { stdout } = runCli(['unsetup'], registrationEnv());
     assert.ok(stdout.includes('unregistered'));
   });
 
-  it('unsetup removes symlink from skills directory', () => {
-    runCli(['setup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
-    runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
-    const linkPath = path.join(skillsDir, 'claude-comedy');
-    assert.ok(!fs.existsSync(linkPath));
+  it('unsetup removes from installed_plugins.json', () => {
+    runCli(['setup'], registrationEnv());
+    runCli(['unsetup'], registrationEnv());
+    const installed = JSON.parse(fs.readFileSync(path.join(pluginsDir, 'installed_plugins.json'), 'utf8'));
+    assert.strictEqual(installed.plugins['claude-comedy@claude-comedy-local'], undefined);
+  });
+
+  it('unsetup removes marketplace from known_marketplaces.json', () => {
+    runCli(['setup'], registrationEnv());
+    runCli(['unsetup'], registrationEnv());
+    const known = JSON.parse(fs.readFileSync(path.join(pluginsDir, 'known_marketplaces.json'), 'utf8'));
+    assert.strictEqual(known['claude-comedy-local'], undefined);
+  });
+
+  it('unsetup removes from settings.json', () => {
+    runCli(['setup'], registrationEnv());
+    runCli(['unsetup'], registrationEnv());
+    const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    assert.strictEqual(settings.enabledPlugins['claude-comedy@claude-comedy-local'], undefined);
+    assert.strictEqual(settings.extraKnownMarketplaces['claude-comedy-local'], undefined);
   });
 
   it('unsetup when not registered shows not registered', () => {
-    const { stdout } = runCli(['unsetup'], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const { stdout } = runCli(['unsetup'], registrationEnv());
     assert.ok(stdout.includes('not currently registered'));
   });
 
   it('default help shows registration status', () => {
-    const { stdout } = runCli([], { CLAUDE_COMEDY_SKILLS_DIR: skillsDir });
+    const { stdout } = runCli([], registrationEnv());
     assert.ok(stdout.includes('Status:'));
     assert.ok(stdout.includes('claude-comedy setup'));
   });

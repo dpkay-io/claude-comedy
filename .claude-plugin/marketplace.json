@@ -1,0 +1,27 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-comedy-local",
+  "description": "Local marketplace for the claude-comedy plugin",
+  "owner": {
+    "name": "dpk",
+    "email": "hi.dpkay@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "claude-comedy",
+      "description": "Injects situational developer humor during idle execution gaps",
+      "version": "1.3.0",
+      "author": {
+        "name": "dpk",
+        "email": "hi.dpkay@gmail.com"
+      },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/dpkay-io/claude-comedy.git",
+        "sha": "7ee3ef536a720361cf8f19dd105c399b2ee532f0"
+      },
+      "category": "productivity",
+      "keywords": ["humor", "comedy", "developer", "fun"]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 node_modules/
 .superpowers/
+memory/
 *.log
 *.stackdump
