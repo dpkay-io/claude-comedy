@@ -181,6 +181,33 @@ describe('cli', () => {
     assert.ok(stdout.includes('observational'));
   });
 
+  it('config --variety sets freestyle percentage', () => {
+    runCli(['config', '--variety', '60'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    assert.strictEqual(config.variety, 60);
+  });
+
+  it('config --variety rejects out-of-range values', () => {
+    const { exitCode, stderr } = runCli(['config', '--variety', '150'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    assert.strictEqual(exitCode, 1);
+    assert.ok(stderr.includes('--variety'));
+  });
+
+  it('config shows variety in output', () => {
+    const { stdout } = runCli(['config'], {
+      CLAUDE_COMEDY_CONFIG_PATH: configPath,
+      CLAUDE_COMEDY_STATE_PATH: statePath,
+    });
+    assert.ok(stdout.includes('variety:'));
+    assert.ok(stdout.includes('40%'));
+  });
+
   it('stats shows joke count', () => {
     fs.writeFileSync(statePath, JSON.stringify({ lastJokeAt: 1000, recentCategories: ['git'], jokeCount: 42 }));
     const { stdout } = runCli(['stats'], {

@@ -124,12 +124,12 @@ describe('updateState', () => {
     assert.strictEqual(updated.jokeCount, 1);
   });
 
-  it('trims recentCategories to last 3', () => {
+  it('trims recentCategories to last 6', () => {
     const { updateState } = require('../src/state.js');
-    const state = { lastJokeAt: 0, recentCategories: ['a', 'b', 'c'], jokeCount: 5 };
-    const updated = updateState(state, 'd');
-    assert.deepStrictEqual(updated.recentCategories, ['b', 'c', 'd']);
-    assert.strictEqual(updated.jokeCount, 6);
+    const state = { lastJokeAt: 0, recentCategories: ['a', 'b', 'c', 'd', 'e', 'f'], jokeCount: 8 };
+    const updated = updateState(state, 'g');
+    assert.deepStrictEqual(updated.recentCategories, ['b', 'c', 'd', 'e', 'f', 'g']);
+    assert.strictEqual(updated.jokeCount, 9);
   });
 });
 

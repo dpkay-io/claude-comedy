@@ -1,6 +1,6 @@
 {
   "name": "claude-comedy",
-  "version": "1.6.0",
+  "version": "1.7.1",
   "description": "Injects situational developer humor into Claude Code sessions",
   "main": "src/engine.js",
   "bin": {
@@ -12,7 +12,7 @@
     "preuninstall": "node scripts/preuninstall.js"
   },
   "keywords": ["claude-code", "plugin", "humor", "comedy", "developer"],
-  "author": "dpk <hi.dpkay@gmail.com>",
+  "author": "dpkay <hello@dpkay.com>",
   "license": "MIT",
   "repository": {
     "type": "git",

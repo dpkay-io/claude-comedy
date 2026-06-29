@@ -52,7 +52,7 @@ describe('engine', () => {
   it('outputs additionalContext JSON when cooldown has elapsed', () => {
     const oldState = { lastJokeAt: 0, recentCategories: [], jokeCount: 0 };
     fs.writeFileSync(statePath, JSON.stringify(oldState));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational', variety: 0 }));
 
     const { stdout, exitCode } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [{ tool_name: 'Bash', tool_input: { command: 'git log' } }] },
@@ -92,16 +92,17 @@ describe('engine', () => {
     assert.ok(updatedState.lastJokeAt > 0);
   });
 
-  it('uses surprise mode when category is repetitive', () => {
+  it('uses a freestyle topic when category is repetitive', () => {
     const state = { lastJokeAt: 0, recentCategories: ['git', 'git', 'testing'], jokeCount: 5 };
     fs.writeFileSync(statePath, JSON.stringify(state));
-    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational' }));
+    fs.writeFileSync(configPath, JSON.stringify({ cooldown_minutes: 5, enabled: true, style: 'observational', variety: 0 }));
 
     const { stdout } = runEngine(
       { hook_event_name: 'PostToolBatch', tool_calls: [{ tool_name: 'Bash', tool_input: { command: 'git diff' } }] },
       { CLAUDE_COMEDY_STATE_PATH: statePath, CLAUDE_COMEDY_CONFIG_PATH: configPath },
     );
     const parsed = JSON.parse(stdout);
-    assert.ok(parsed.hookSpecificOutput.additionalContext.includes('surprise'));
+    assert.ok(!parsed.hookSpecificOutput.additionalContext.includes('related to: git'));
+    assert.ok(parsed.hookSpecificOutput.additionalContext.includes('related to:'));
   });
 });

@@ -41,14 +41,16 @@ switch (command) {
     const config = readConfig(configPath);
     const cooldownIdx = args.indexOf('--cooldown');
     const styleIdx = args.indexOf('--style');
+    const varietyIdx = args.indexOf('--variety');
     const hasDisable = args.includes('--disable');
     const hasEnable = args.includes('--enable');
 
-    if (cooldownIdx === -1 && styleIdx === -1 && !hasDisable && !hasEnable) {
+    if (cooldownIdx === -1 && styleIdx === -1 && varietyIdx === -1 && !hasDisable && !hasEnable) {
       console.log('\n  \u{1f3ad} Claude Comedy Config\n');
       console.log(`  cooldown_minutes: ${config.cooldown_minutes}`);
       console.log(`  enabled:          ${config.enabled}`);
       console.log(`  style:            ${config.style}`);
+      console.log(`  variety:          ${config.variety}%`);
       console.log(`  config file:      ${configPath}\n`);
       break;
     }
@@ -69,6 +71,14 @@ switch (command) {
       }
       config.style = value;
     }
+    if (varietyIdx !== -1) {
+      const value = parseInt(args[varietyIdx + 1], 10);
+      if (isNaN(value) || value < 0 || value > 100) {
+        console.error('Error: --variety requires a number between 0 and 100');
+        process.exit(1);
+      }
+      config.variety = value;
+    }
     if (hasDisable) config.enabled = false;
     if (hasEnable) config.enabled = true;
 
@@ -76,7 +86,8 @@ switch (command) {
     console.log('\n  \u{1f3ad} Config updated!\n');
     console.log(`  cooldown_minutes: ${config.cooldown_minutes}`);
     console.log(`  enabled:          ${config.enabled}`);
-    console.log(`  style:            ${config.style}\n`);
+    console.log(`  style:            ${config.style}`);
+    console.log(`  variety:          ${config.variety}%\n`);
     break;
   }
 
@@ -120,6 +131,7 @@ ${statusLine}
     claude-comedy config                  Show current config
     claude-comedy config --cooldown <N>   Set cooldown to N minutes
     claude-comedy config --style <S>      Set humor style (${VALID_STYLES.join(', ')})
+    claude-comedy config --variety <N>    Freestyle joke chance, 0-100% (default 40)
     claude-comedy config --enable         Enable comedy
     claude-comedy config --disable        Disable comedy
     claude-comedy stats                   Show joke stats

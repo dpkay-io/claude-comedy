@@ -22,7 +22,7 @@ process.stdin.on('end', () => {
     const hookInput = JSON.parse(input);
     const category = classify(hookInput);
     const repetitive = isRepetitive(state, category);
-    const prompt = buildPrompt(category, repetitive, config.style);
+    const prompt = buildPrompt(category, repetitive, config.style, config.variety);
     const hookEventName = hookInput.hook_event_name || 'PostToolBatch';
 
     process.stdout.write(buildOutputJson(prompt, hookEventName));

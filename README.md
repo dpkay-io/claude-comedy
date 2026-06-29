@@ -1,3 +1,5 @@
+[![Claude Code Plugin](https://img.shields.io/badge/Claude_Code_Plugin-cc785c)](https://github.com/dpkay-io/claude-comedy) [![Platform](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue)](https://github.com/dpkay-io/claude-comedy) [![License](https://img.shields.io/npm/l/claude-comedy)](https://github.com/dpkay-io/claude-comedy) [![fun](https://img.shields.io/badge/fun-ff69b4)](https://github.com/dpkay-io/claude-comedy) [![ai-tools](https://img.shields.io/badge/ai--tools-blueviolet)](https://github.com/dpkay-io/claude-comedy) [![npm downloads](https://img.shields.io/npm/dt/claude-comedy)](https://github.com/dpkay-io/claude-comedy) [![npm version](https://img.shields.io/npm/v/claude-comedy)](https://github.com/dpkay-io/claude-comedy) [![node version](https://img.shields.io/node/v/claude-comedy)](https://github.com/dpkay-io/claude-comedy)
+
 # Claude Comedy
 
 Developer humor that lives inside your Claude Code sessions. No setup, no manual invocation — just laughs between tool calls.

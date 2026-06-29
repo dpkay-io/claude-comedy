@@ -4,9 +4,9 @@ const assert = require('node:assert/strict');
 describe('buildPrompt', () => {
   const { buildPrompt } = require('../src/prompt.js');
 
-  it('includes the category in the prompt', () => {
-    const prompt = buildPrompt('git', false);
-    assert.ok(prompt.includes('git'));
+  it('includes the category when variety is 0 and not repetitive', () => {
+    const prompt = buildPrompt('git', false, 'observational', 0);
+    assert.ok(prompt.includes('related to: git'));
   });
 
   it('includes mood bubble format instructions', () => {
@@ -23,10 +23,27 @@ describe('buildPrompt', () => {
     assert.ok(prompt.includes('emoji'));
   });
 
-  it('switches to surprise mode when repetitive', () => {
-    const prompt = buildPrompt('git', true);
+  it('uses a freestyle topic when repetitive', () => {
+    const prompt = buildPrompt('git', true, 'observational', 0);
     assert.ok(!prompt.includes('related to: git'));
-    assert.ok(prompt.includes('surprise'));
+    assert.ok(prompt.includes('related to:'));
+  });
+
+  it('always goes freestyle when variety is 100', () => {
+    const results = new Set();
+    for (let i = 0; i < 20; i++) {
+      const prompt = buildPrompt('git', false, 'observational', 100);
+      if (prompt.includes('related to: git')) results.add('category');
+      else results.add('freestyle');
+    }
+    assert.ok(!results.has('category'));
+  });
+
+  it('never goes freestyle when variety is 0 and not repetitive', () => {
+    for (let i = 0; i < 20; i++) {
+      const prompt = buildPrompt('git', false, 'observational', 0);
+      assert.ok(prompt.includes('related to: git'));
+    }
   });
 
   it('includes mandatory hook framing', () => {
@@ -82,5 +99,30 @@ describe('VALID_STYLES', () => {
     assert.ok(VALID_STYLES.includes('dad-jokes'));
     assert.ok(VALID_STYLES.includes('absurdist'));
     assert.strictEqual(VALID_STYLES.length, 4);
+  });
+});
+
+describe('FREESTYLE_TOPICS', () => {
+  const { FREESTYLE_TOPICS } = require('../src/prompt.js');
+
+  it('has a non-empty array of topics', () => {
+    assert.ok(Array.isArray(FREESTYLE_TOPICS));
+    assert.ok(FREESTYLE_TOPICS.length > 5);
+  });
+});
+
+describe('shouldFreestyle', () => {
+  const { shouldFreestyle } = require('../src/prompt.js');
+
+  it('always returns false when variety is 0', () => {
+    for (let i = 0; i < 50; i++) {
+      assert.strictEqual(shouldFreestyle(0), false);
+    }
+  });
+
+  it('always returns true when variety is 100', () => {
+    for (let i = 0; i < 50; i++) {
+      assert.strictEqual(shouldFreestyle(100), true);
+    }
   });
 });

@@ -37,7 +37,7 @@ function isRepetitive(state, category) {
 }
 
 function updateState(state, category) {
-  const recentCategories = [...state.recentCategories, category].slice(-3);
+  const recentCategories = [...state.recentCategories, category].slice(-6);
   return {
     lastJokeAt: Date.now(),
     recentCategories,

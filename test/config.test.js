@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
-const DEFAULTS = { cooldown_minutes: 5, enabled: true, style: 'observational' };
+const DEFAULTS = { cooldown_minutes: 5, enabled: true, style: 'observational', variety: 40 };
 
 describe('readConfig', () => {
   let tmpDir;

@@ -4,7 +4,7 @@ const os = require('node:os');
 
 const CONFIG_PATH = path.join(os.homedir(), '.config', 'claude-comedy', 'config.json');
 
-const DEFAULTS = Object.freeze({ cooldown_minutes: 5, enabled: true, style: 'observational' });
+const DEFAULTS = Object.freeze({ cooldown_minutes: 5, enabled: true, style: 'observational', variety: 40 });
 const VALID_KEYS = new Set(Object.keys(DEFAULTS));
 
 function readConfig(filePath = CONFIG_PATH) {
